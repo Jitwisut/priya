@@ -1,16 +1,21 @@
-version: '3.8'
 services:
-  db:
-    image: postgres:15-alpine
-    restart: always
+  postgres:
+    image: postgres:16-alpine
+    container_name: priya_postgres
+    restart: unless-stopped
     environment:
-      POSTGRES_USER: admin
-      POSTGRES_PASSWORD: adminpassword
-      POSTGRES_DB: priya_db
+      POSTGRES_USER: ${POSTGRES_USER:-admin}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-adminpassword}
+      POSTGRES_DB: ${POSTGRES_DB:-priya_db}
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-55432}:5432"
     volumes:
-      - pgdata:/var/lib/postgresql/data
+      - priya_postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-admin} -d ${POSTGRES_DB:-priya_db}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
 
 volumes:
-  pgdata:
+  priya_postgres_data:
